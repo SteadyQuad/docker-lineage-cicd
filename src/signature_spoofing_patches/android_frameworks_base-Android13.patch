@@ -1,5 +1,5 @@
 diff --git a/core/api/current.txt b/core/api/current.txt
-index c8a43db2f9c2..277183036c60 100644
+index 773d77422d9f..92da4b1a06a7 100644
 --- a/core/api/current.txt
 +++ b/core/api/current.txt
 @@ -87,6 +87,7 @@ package android {
@@ -10,7 +10,7 @@ index c8a43db2f9c2..277183036c60 100644
      field public static final String FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE";
      field public static final String GET_ACCOUNTS = "android.permission.GET_ACCOUNTS";
      field public static final String GET_ACCOUNTS_PRIVILEGED = "android.permission.GET_ACCOUNTS_PRIVILEGED";
-@@ -222,6 +223,7 @@ package android {
+@@ -223,6 +224,7 @@ package android {
      field public static final String CALL_LOG = "android.permission-group.CALL_LOG";
      field public static final String CAMERA = "android.permission-group.CAMERA";
      field public static final String CONTACTS = "android.permission-group.CONTACTS";
@@ -19,10 +19,10 @@ index c8a43db2f9c2..277183036c60 100644
      field public static final String MICROPHONE = "android.permission-group.MICROPHONE";
      field public static final String NEARBY_DEVICES = "android.permission-group.NEARBY_DEVICES";
 diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
-index 6e48de5ba31f..32b0cd346e91 100644
+index eb64b68836f4..daa4dc35d927 100644
 --- a/core/res/AndroidManifest.xml
 +++ b/core/res/AndroidManifest.xml
-@@ -3542,6 +3542,21 @@
+@@ -3562,6 +3562,21 @@
          android:description="@string/permdesc_getPackageSize"
          android:protectionLevel="normal" />
  
@@ -45,10 +45,10 @@ index 6e48de5ba31f..32b0cd346e91 100644
           {@link android.content.pm.PackageManager#addPackageToPreferred}
           for details. -->
 diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
-index e5d90f00f327..7ac26e536f2a 100644
+index 3f03f5726b23..818ab1d02bea 100644
 --- a/core/res/res/values/strings.xml
 +++ b/core/res/res/values/strings.xml
-@@ -974,6 +974,18 @@
+@@ -984,6 +984,18 @@
  
      <!--  Permissions -->
  
