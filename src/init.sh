@@ -42,7 +42,7 @@ if [ "$SIGN_BUILDS" = true ]; then
       /root/make_key "$KEYS_DIR/$c" "$KEYS_SUBJECT" <<< '' &> /dev/null
     done
   else
-    for c in releasekey platform shared media networkstack; do
+    for c in releasekey platform shared media networkstack verity sdk_sandbox bluetooth; do
       for e in pk8 x509.pem; do
         if [ ! -f "$KEYS_DIR/$c.$e" ]; then
           echo ">> [$(date)] SIGN_BUILDS = true and not empty \$KEYS_DIR, but \"\$KEYS_DIR/$c.$e\" is missing"
