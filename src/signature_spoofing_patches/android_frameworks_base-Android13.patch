@@ -126,7 +126,7 @@ index 259ca655d2b9..f78a82b35ef2 100644
 +            boolean computePermissions = !ArrayUtils.isEmpty(p.getRequestedPermissions()) &&
 +                ((flags & PackageManager.GET_PERMISSIONS) != 0 || getRequestedFakeSignature(p) != null);
 +            final Set<String> permissions = computePermissions ?
-+                    mPermissionManager.getGrantedPermissions(ps.name, userId)
++                    mPermissionManager.getGrantedPermissions(ps.getPackageName(), userId)
 +                    : Collections.emptySet();
  
              PackageInfo packageInfo = PackageInfoUtils.generate(p, gids, flags,
