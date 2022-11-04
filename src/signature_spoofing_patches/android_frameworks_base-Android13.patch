@@ -19,7 +19,7 @@ index c8a43db2f9c2..cb812f0f0d73 100644
      field public static final String MICROPHONE = "android.permission-group.MICROPHONE";
      field public static final String NEARBY_DEVICES = "android.permission-group.NEARBY_DEVICES";
 diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
-index 6e48de5ba31f..32b0cd346e91 100644
+index 6e48de5ba31f..cef98d01a44c 100644
 --- a/core/res/AndroidManifest.xml
 +++ b/core/res/AndroidManifest.xml
 @@ -3542,6 +3542,21 @@
@@ -45,7 +45,7 @@ index 6e48de5ba31f..32b0cd346e91 100644
           {@link android.content.pm.PackageManager#addPackageToPreferred}
           for details. -->
 diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
-index 34b5589bf81f..fd6507736347 100644
+index d655721615b6..f95766a42f73 100644
 --- a/core/res/res/values/config.xml
 +++ b/core/res/res/values/config.xml
 @@ -1913,6 +1913,8 @@
@@ -58,7 +58,7 @@ index 34b5589bf81f..fd6507736347 100644
  
      <!-- Package name(s) of Advanced Driver Assistance applications. These packages have additional
 diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
-index e5d90f00f327..7ac26e536f2a 100644
+index c6b60f586047..ecf5034f18bb 100644
 --- a/core/res/res/values/strings.xml
 +++ b/core/res/res/values/strings.xml
 @@ -974,6 +974,18 @@
@@ -81,10 +81,18 @@ index e5d90f00f327..7ac26e536f2a 100644
      <string name="permlab_statusBar">disable or modify status bar</string>
      <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
 diff --git a/services/core/java/com/android/server/pm/ComputerEngine.java b/services/core/java/com/android/server/pm/ComputerEngine.java
-index 259ca655d2b9..f78a82b35ef2 100644
+index 259ca655d2b9..4c7cebb74d4b 100644
 --- a/services/core/java/com/android/server/pm/ComputerEngine.java
 +++ b/services/core/java/com/android/server/pm/ComputerEngine.java
-@@ -1591,6 +1591,31 @@ public class ComputerEngine implements Computer {
+@@ -95,6 +95,7 @@ import android.content.pm.UserInfo;
+ import android.content.pm.VersionedPackage;
+ import android.os.Binder;
+ import android.os.Build;
++import android.os.Bundle;
+ import android.os.IBinder;
+ import android.os.ParcelableException;
+ import android.os.PatternMatcher;
+@@ -1591,6 +1592,31 @@ public class ComputerEngine implements Computer {
          return result;
      }
  
@@ -116,7 +124,7 @@ index 259ca655d2b9..f78a82b35ef2 100644
      public final PackageInfo generatePackageInfo(PackageStateInternal ps,
              @PackageManager.PackageInfoFlagsBits long flags, int userId) {
          if (!mUserManager.exists(userId)) return null;
-@@ -1620,14 +1645,18 @@ public class ComputerEngine implements Computer {
+@@ -1620,14 +1646,18 @@ public class ComputerEngine implements Computer {
              final int[] gids = (flags & PackageManager.GET_GIDS) == 0 ? EMPTY_INT_ARRAY
                      : mPermissionManager.getGidsForUid(UserHandle.getUid(userId, ps.getAppId()));
              // Compute granted permissions only if package has requested permissions
