@@ -167,11 +167,16 @@ for branch in ${BRANCH_NAME//,/ }; do
       fi
     done
 
+    depth_arg=""
+    if [ "$REPO_DEPTH_1" = true ]; then
+      depth_arg="--depth 1"
+    fi
+
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
     if [ "$LOCAL_MIRROR" = true ]; then
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
+      ( yes||: ) | repo init "${depth_arg}" -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
     else
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
+      ( yes||: ) | repo init "${depth_arg}" -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
