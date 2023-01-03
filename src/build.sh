@@ -169,7 +169,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     depth_arg=""
     if [ "$REPO_DEPTH_1" = true ]; then
-      depth_arg="--depth 1"
+      depth_arg="--depth=1"
     fi
 
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
