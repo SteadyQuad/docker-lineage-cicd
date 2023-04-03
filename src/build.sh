@@ -66,6 +66,17 @@ if [ -n "${PARALLEL_JOBS-}" ]; then
   fi
 fi
 
+reposync_jobs_arg=()
+if [ -n "${REPOSYNC_PARALLEL_JOBS-}" ]; then
+  if [[ "$REPOSYNC_PARALLEL_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    reposync_jobs_arg+=( "-j$REPOSYNC_PARALLEL_JOBS" )
+  else
+    echo "REPOSYNC_PARALLEL_JOBS is not a positive number: $REPOSYNC_PARALLEL_JOBS"
+    exit 1
+  fi
+else
+  reposync_jobs_arg=jobs_arg
+fi
 
 if [ "$LOCAL_MIRROR" = true ]; then
 
@@ -89,7 +100,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
 
   echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-  repo sync "${jobs_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+  repo sync "${reposync_jobs_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
@@ -193,7 +204,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     builddate=$(date +%Y%m%d)
-    repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
+    repo sync "${reposync_jobs_arg[@]}" -c --force-sync &>> "$repo_log"
 
     if [ ! -d "vendor/$vendor" ]; then
       echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
