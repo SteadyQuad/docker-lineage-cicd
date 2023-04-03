@@ -187,7 +187,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     if [ "$LOCAL_MIRROR" = true ]; then
       ( yes||: ) | repo init "${depth_arg}" -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
     else
-      ( yes||: ) | repo init "${depth_arg}" -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
+      ( yes||: ) | repo init --git-lfs "${depth_arg}" -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
