@@ -75,7 +75,7 @@ if [ -n "${REPOSYNC_PARALLEL_JOBS-}" ]; then
     exit 1
   fi
 else
-  reposync_jobs_arg=jobs_arg
+  reposync_jobs_arg=("${jobs_arg[@]}")
 fi
 
 if [ "$LOCAL_MIRROR" = true ]; then
