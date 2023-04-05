@@ -165,8 +165,8 @@ for branch in ${BRANCH_NAME//,/ }; do
       mkdir -p "$SRC_DIR/$branch_dir"
       cd "$SRC_DIR/$branch_dir"
 
-      # link ./out dir to $OUT_EXT_DIR if set and not exists
-      if [ ! -d "out" ] && [ -n "$OUT_EXT_DIR" ]; then
+      # soft link ./out dir to $OUT_EXT_DIR if set and not exists
+      if [ ! -d "out" ] && [ "$USE_OUT_EXT_DIR" = true ]; then
         ln -s "$OUT_EXT_DIR" out
       fi
 

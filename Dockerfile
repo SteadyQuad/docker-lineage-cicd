@@ -85,6 +85,9 @@ ENV CUSTOM_PACKAGES ''
 # Sign the builds with the keys in $KEYS_DIR
 ENV SIGN_BUILDS false
 
+# Use specified OUT_EXT_DIR volume instead of default $SRC_DIR/<branchname>/out
+ENV USE_OUT_EXT_DIR false
+
 # Don't modify the current state of the source tree (no sync, no reset, no patches etc)
 ENV DONT_MODIFY_SOURCE false
 
