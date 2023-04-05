@@ -13,6 +13,7 @@ ENV LMANIFEST_DIR /srv/local_manifests
 ENV KEYS_DIR /srv/keys
 ENV LOGS_DIR /srv/logs
 ENV USERSCRIPTS_DIR /srv/userscripts
+ENV OUT_EXT_DIR /srv/out
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV USER root
@@ -84,6 +85,9 @@ ENV CUSTOM_PACKAGES ''
 # Sign the builds with the keys in $KEYS_DIR
 ENV SIGN_BUILDS false
 
+# Don't modify the current state of the source tree (no sync, no reset, no patches etc)
+ENV DONT_MODIFY_SOURCE false
+
 # When SIGN_BUILDS = true but no keys have been provided, generate a new set with this subject
 ENV KEYS_SUBJECT '/C=US/ST=California/L=Mountain View/O=Android/OU=Android/CN=Android/emailAddress=android@android.com'
 
@@ -133,11 +137,12 @@ VOLUME $LMANIFEST_DIR
 VOLUME $KEYS_DIR
 VOLUME $LOGS_DIR
 VOLUME $USERSCRIPTS_DIR
+VOLUME $OUT_EXT_DIR
 
 # Create missing directories
 ############################
 RUN mkdir -p $MIRROR_DIR $SRC_DIR $TMP_DIR $CCACHE_DIR $ZIP_DIR $LMANIFEST_DIR \
-      $KEYS_DIR $LOGS_DIR $USERSCRIPTS_DIR
+      $KEYS_DIR $LOGS_DIR $USERSCRIPTS_DIR $OUT_EXT_DIR
 
 # Install build dependencies
 ############################

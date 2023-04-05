@@ -78,7 +78,7 @@ else
   reposync_jobs_arg=("${jobs_arg[@]}")
 fi
 
-if [ "$LOCAL_MIRROR" = true ]; then
+if [ "$DONT_MODIFY_SOURCE" = false ] && [ "$LOCAL_MIRROR" = true ]; then
 
   cd "$MIRROR_DIR"
 
@@ -161,56 +161,63 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 
-    mkdir -p "$SRC_DIR/$branch_dir"
-    cd "$SRC_DIR/$branch_dir"
+    if [ "$DONT_MODIFY_SOURCE" = false ]; then 
+      mkdir -p "$SRC_DIR/$branch_dir"
+      cd "$SRC_DIR/$branch_dir"
 
-    echo ">> [$(date)] Branch:  $branch"
-    echo ">> [$(date)] Devices: $devices"
-
-    # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
-    # TODO: maybe reset everything using https://source.android.com/setup/develop/repo#forall
-    for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController" "packages/modules/Permission"; do
-      if [ -d "$path" ]; then
-        cd "$path"
-        git reset -q --hard
-        git clean -q -fd
-        cd "$SRC_DIR/$branch_dir"
+      # link ./out dir to $OUT_EXT_DIR if set and not exists
+      if [ ! -d "out" ] && [ -n "$OUT_EXT_DIR" ]; then
+        ln -s "$OUT_EXT_DIR" out
       fi
-    done
 
-    depth_arg=""
-    if [ "$REPO_DEPTH_1" = true ]; then
-      depth_arg="--depth=1"
+      echo ">> [$(date)] Branch:  $branch"
+      echo ">> [$(date)] Devices: $devices"
+
+      # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
+      # TODO: maybe reset everything using https://source.android.com/setup/develop/repo#forall
+      for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController" "packages/modules/Permission"; do
+        if [ -d "$path" ]; then
+          cd "$path"
+          git reset -q --hard
+          git clean -q -fd
+          cd "$SRC_DIR/$branch_dir"
+        fi
+      done
+
+      depth_arg=""
+      if [ "$REPO_DEPTH_1" = true ]; then
+        depth_arg="--depth=1"
+      fi
+
+      echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
+      if [ "$LOCAL_MIRROR" = true ]; then
+        ( yes||: ) | repo init "${depth_arg}" -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
+      else
+        ( yes||: ) | repo init --git-lfs "${depth_arg}" -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
+      fi
+
+      # Copy local manifests to the appropriate folder in order take them into consideration
+      echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
+      mkdir -p .repo/local_manifests
+      rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
+
+      rm -f .repo/local_manifests/proprietary.xml
+      if [ "$INCLUDE_PROPRIETARY" = true ]; then
+        wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
+        /root/build_manifest.py --remote "https://gitlab.com" --remotename "gitlab_https" \
+          "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
+      fi
+
+      echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
+
+      repo sync "${reposync_jobs_arg[@]}" -c --force-sync &>> "$repo_log"
+
+      if [ ! -d "vendor/$vendor" ]; then
+        echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
+        exit 1
+      fi
+      builddate=$(date +%Y%m%d)
     fi
-
-    echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
-    if [ "$LOCAL_MIRROR" = true ]; then
-      ( yes||: ) | repo init "${depth_arg}" -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
-    else
-      ( yes||: ) | repo init --git-lfs "${depth_arg}" -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
-    fi
-
-    # Copy local manifests to the appropriate folder in order take them into consideration
-    echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
-    mkdir -p .repo/local_manifests
-    rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
-
-    rm -f .repo/local_manifests/proprietary.xml
-    if [ "$INCLUDE_PROPRIETARY" = true ]; then
-      wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
-      /root/build_manifest.py --remote "https://gitlab.com" --remotename "gitlab_https" \
-        "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
-    fi
-
-    echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-    builddate=$(date +%Y%m%d)
-    repo sync "${reposync_jobs_arg[@]}" -c --force-sync &>> "$repo_log"
-
-    if [ ! -d "vendor/$vendor" ]; then
-      echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
-      exit 1
-    fi
-
     # Set up our overlay
     mkdir -p "vendor/$vendor/overlay/microg/"
     sed -i "1s;^;PRODUCT_PACKAGE_OVERLAYS := vendor/$vendor/overlay/microg\n;" "vendor/$vendor/config/common.mk"
@@ -224,7 +231,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     los_ver="$los_ver_major.$los_ver_minor"
 
     # If needed, apply the microG's signature spoofing patch
-    if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
+    if [[ "$DONT_MODIFY_SOURCE" = false && ("$SIGNATURE_SPOOFING" = "yes" || "$SIGNATURE_SPOOFING" = "restricted") ]]; then
       # Determine which patch should be applied to the current Android source tree
       cd frameworks/base
       if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
