@@ -283,6 +283,7 @@ for branch in ${BRANCH_NAME//,/ }; do
       fi
     else
       echo ">> Leaving sourcetree as-is (DONT_MODIFY_SOURCE)" | tee -a "$repo_log"
+      cd "$SRC_DIR/$branch_dir"
     fi
 
     # Set up our overlay
