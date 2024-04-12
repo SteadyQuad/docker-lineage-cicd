@@ -1,4 +1,4 @@
-FROM ubuntu:22.04@sha256:4b1d0c4a2d2aaf63b37111f34eb9fa89fa1bf53dd6e4ca954d47caebca4005c2
+FROM ubuntu:22.04@sha256:77906da86b60585ce12215807090eb327e7386c8fafb5402369e421f44eff17e
 LABEL maintainer="Nicola Corna <nicola@corna.info>"
 
 # Environment variables
@@ -119,6 +119,29 @@ ENV DELETE_OLD_LOGS 0
 
 # build type of your builds (user|userdebug|eng)
 ENV BUILD_TYPE "userdebug"
+
+# we can use --depth=1 here
+ENV REPO_INIT_ARGS ""
+
+# You can specify the number of retries for repo sync here. This is useful if you get connection errors during repo sync. The value will be directly forwarded to the repo command
+# Default: unset; repo uses default retry mechanism
+# Allowed values: positive, non-null integers
+ENV RETRY_FETCHES=
+
+
+# variables to control whether or not tasks are implemented
+ENV INIT_MIRROR true
+ENV SYNC_MIRROR true
+ENV RESET_VENDOR_UNDO_PATCHES true
+ENV CALL_REPO_INIT true
+ENV CALL_REPO_SYNC true
+ENV CALL_GIT_LFS_PULL false
+ENV APPLY_PATCHES true
+ENV PREPARE_BUILD_ENVIRONMENT true
+ENV CALL_BREAKFAST true
+ENV CALL_MKA true
+ENV ZIP_UP_IMAGES false
+ENV MAKE_IMG_ZIP_FILE false
 
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
